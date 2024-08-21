@@ -4,20 +4,15 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import "./Signup.css";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import auth from "../../config/firebase";
 
 const Signup = () => {
-  // const [userName, setUserName] = useState("");
-  // const [userPassword, setUserPassword] = useState("");
-  // const [userEmail, setUserEmail] = useState("");
-  // const [confirmPassword, setConfirmPassword] = useState();
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-
-  const [signUpData, setSignUpData] = useState({
-    userName: "",
-    userEmail: "",
-    userPassword: "",
-    confirmPassword: "",
-  });
 
   // const [isSignedUp, setIsSignedUp] = useState(false);
   const navigate = useNavigate();
@@ -26,42 +21,48 @@ const Signup = () => {
     e.preventDefault(); // Prevent the form from submitting and refreshing the page
 
     // Check if passwords match
-    if (signUpData.userPassword !== signUpData.confirmPassword) {
+    if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
     }
 
-    // // Get existing users from local storage or initialize an empty array
-    // const users = JSON.parse(localStorage.getItem("users")) || [];
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        // Get existing users from local storage or initialize an empty array
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        // Create a new user object
+        const newUser = { name, email };
+        // Add the new user to the array
+        users.push(newUser);
+        // Save the updated users array back to local storage
+        localStorage.setItem("users", JSON.stringify(users));
+        alert("Signup successfull");
+        navigate("/login"); // Redirect to login page
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage);
+      });
 
-    // // Create a new user object
-    // const newUser = { userName, userEmail, userPassword };
-
-    // // Add the new user to the array
-    // users.push(newUser);
-
-    // // Save the updated users array back to local storage
-    // localStorage.setItem("users", JSON.stringify(users));
-
-    // setIsSignedUp(true);
-
-    alert("Signup successfull");
     setError("");
-    setSignUpData({
-      userName: "",
-      userEmail: "",
-      userPassword: "",
-      confirmPassword: "",
-    });
     console.log(
       "userName: ",
-      signUpData.userName,
+      name,
       "userEmail: ",
-      signUpData.userEmail,
+      email,
       "userPassword: ",
-      signUpData.userPassword
+      password
     );
-    navigate("/login"); // Redirect to login page
+
+    setName("");
+    setPassword("");
+    setEmail("");
+    setConfirmPassword("");
+   
   };
 
   return (
@@ -75,10 +76,8 @@ const Signup = () => {
               type="text"
               placeholder="Username"
               className="input-box"
-              value={signUpData.userName}
-              onChange={(e) =>
-                setSignUpData({ ...signUpData, userName: e.target.value })
-              }
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
@@ -88,10 +87,8 @@ const Signup = () => {
               type="email"
               placeholder="Your Email"
               className="input-box"
-              value={signUpData.userEmail}
-              onChange={(e) =>
-                setSignUpData({ ...signUpData, userEmail: e.target.value })
-              }
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -101,10 +98,8 @@ const Signup = () => {
               type="password"
               placeholder="Password"
               className="input-box"
-              value={signUpData.userPassword}
-              onChange={(e) =>
-                setSignUpData({ ...signUpData, userPassword: e.target.value })
-              }
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -114,13 +109,8 @@ const Signup = () => {
               type="password"
               placeholder="Repeat Your Password"
               className="input-box"
-              value={signUpData.confirmPassword}
-              onChange={(e) =>
-                setSignUpData({
-                  ...signUpData,
-                  confirmPassword: e.target.value,
-                })
-              }
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
             {error && <p className="error-message">{error}</p>}

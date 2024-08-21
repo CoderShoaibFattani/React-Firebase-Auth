@@ -4,15 +4,30 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import "./Login.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import auth from "../../config/firebase";
 
 const Login = () => {
-  const [userName, setUserName] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   // const navigate = useNavigate();
 
   const handleSignin = (e) => {
-    e.preventDefault(); // Prevent the form from submitting and refreshing the page
+    e.preventDefault(); // Prevent the form from submitting and refreshing the 
+    
+  signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    console.log(user)
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.error(errorCode, errorMessage);
+  });
+
 
     // // Get existing users from local storage or initialize an empty array
     // const users = JSON.parse(localStorage.getItem("users")) || [];
@@ -42,11 +57,11 @@ const Login = () => {
           <div className="input-div">
             <FaUser />
             <input
-              type="text"
-              placeholder="Username"
+              type="email"
+              placeholder="Email"
               className="input-box"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -56,8 +71,8 @@ const Login = () => {
               type="password"
               placeholder="Password"
               className="input-box"
-              value={userPassword}
-              onChange={(e) => setUserPassword(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
