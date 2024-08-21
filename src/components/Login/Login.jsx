@@ -4,7 +4,12 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import "./Login.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  GithubAuthProvider,
+} from "firebase/auth";
 import auth from "../../config/firebase";
 
 const Login = () => {
@@ -14,20 +19,19 @@ const Login = () => {
   // const navigate = useNavigate();
 
   const handleSignin = (e) => {
-    e.preventDefault(); // Prevent the form from submitting and refreshing the 
-    
-  signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    console.log(user)
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    console.error(errorCode, errorMessage);
-  });
+    e.preventDefault(); // Prevent the form from submitting and refreshing the
 
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error(errorCode, errorMessage);
+      });
 
     // // Get existing users from local storage or initialize an empty array
     // const users = JSON.parse(localStorage.getItem("users")) || [];
@@ -46,6 +50,28 @@ const Login = () => {
     //   // If user is not found, set an error message
     //   setError("Invalid username or password");
     // }
+  };
+
+  const handleGoogleLogin = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleGithubLogin = () => {
+    const provider = new GithubAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -77,6 +103,12 @@ const Login = () => {
             />
           </div>
           <button className="login-btn1">Log in</button>
+          <button className="login-btn1" onClick={handleGoogleLogin}>
+            Login With Google
+          </button>
+          <button className="login-btn1" onClick={handleGithubLogin}>
+            Login With GitHub
+          </button>
         </form>
         <div className="signup-div">
           <p>Create an account</p>
