@@ -10,7 +10,7 @@ import {
   signInWithPopup,
   GithubAuthProvider,
 } from "firebase/auth";
-import auth from "../../config/firebase";
+import { auth } from "../../config/firebase";
 
 const Login = () => {
   const [password, setPassword] = useState("");
