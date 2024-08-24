@@ -12,6 +12,7 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 const Signup = () => {
@@ -21,6 +22,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
+  const [referesh, setReferesh] = useState(false);
 
   // const [isSignedUp, setIsSignedUp] = useState(false);
   const navigate = useNavigate();
@@ -48,13 +50,13 @@ const Signup = () => {
         localStorage.setItem("users", JSON.stringify(users));
         alert("Signup successfull");
         navigate("/login"); // Redirect to login page
-        // console.log(user);
+        console.log(user);
         addData(); // Add user data to Firestore
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorMessage);
+        console.log(errorCode, errorMessage);
       });
 
     setError("");
@@ -97,16 +99,25 @@ const Signup = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [referesh]);
 
-  // const handleEdit = async (id) => {
-  //   let updatedName = prompt("Edit you name")
-  //   let updatedObj = {
-  //     name: updatedName
-  //   }
-  //   const data = doc(db, "users", updatedObj )
-  //   const updatedData = await updateDoc(data);
-  // };
+  const handleEdit = async (id) => {
+    let updatedName = prompt("Edit you name");
+    let updatedEmail = prompt("Edit your email address");
+    let updatedObj = {
+      name: updatedName,
+      email: updatedEmail,
+    };
+    const data = doc(db, "users", id);
+    const updatedData = await updateDoc(data, updatedObj);
+    setReferesh(!referesh);
+  };
+
+  const handleDelete = async (id) => {
+    const userRef = doc(db, "users", id);
+    await deleteDoc(userRef);
+    setReferesh(!referesh);
+  };
 
   return (
     <div>
@@ -169,16 +180,26 @@ const Signup = () => {
               </Link>
             </button>
           </div>
+          <div className="user-list">
+            {users.map((e, i) => {
+              return (
+                <div key={i} className="user-item">
+                  <span className="user-name">{e.name}</span>
+                  <span className="user-name">{e.email}</span>
+                  <button className="edit-btn" onClick={() => handleEdit(e.id)}>
+                    Edit
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(e.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-      <div>
-        {users.map((e, i) => {
-          return (<div key={i}>
-            <span>{e.name}</span>
-            <button onClick={() => handleEdit(e.id)}>Edit</button>
-            <button onClick={() => handleDelete(e.id)}>Delete</button>
-          </div>)
-        })}
       </div>
     </div>
   );
